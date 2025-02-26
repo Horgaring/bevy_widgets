@@ -1,8 +1,15 @@
 use bevy::{
-    ecs::{component::Component, entity::Entity, query::With, system::{Commands, EntityCommands, Local, Query, Res}}, render::view::{window, Visibility}, scene::ron::de::Position, ui::{
-        widget::{Button, Text}, ComputedNode, Interaction, Node, PositionType, RelativeCursorPosition, Val
-    }, utils::{default, info}, window::Window
+    prelude::*,
+    ui::{RelativeCursorPosition, ComputedNode, PositionType, Val},
+    window::Window,
 };
+pub struct TooltipWidgetPlugin;
+
+impl Plugin for TooltipWidgetPlugin{
+    fn build(&self, app: &mut App) {
+        app.add_systems(Update, show_tooltip);
+    }
+}
 
 pub struct TooltipBuilder<'a> {
     content: Option<Node>,
@@ -22,7 +29,7 @@ impl<'a> TooltipBuilder<'a> {
             commands: Vec::new(),
         }
     }
-    pub fn with_content(&mut self,mut  content: Node) -> &mut Self {
+    pub fn with_content(&mut self, mut content: Node) -> &mut Self {
         content.position_type = PositionType::Absolute;
         self.content = Some(content);
         self
@@ -39,11 +46,13 @@ impl<'a> TooltipBuilder<'a> {
                 Text("".to_string()),
                 self.content.take().unwrap(),
             ));
-            let mut entcom2 = entcom;
+
+        let mut entcom2 = entcom;
         for command in self.commands.iter() {
             entcom2 = command(entcom2);
             
         }
+
         entcom2.id() 
     }
 }
@@ -60,45 +69,52 @@ pub fn show_tooltip(
     trigger_query: Query<(Entity,&TooltipTrigger, &Interaction)>,
     windows: Query<&Window>,
 ){
-    if let Some(cursor_position) = windows.single().cursor_position(){
-        for (entity,trigger, interaction) in trigger_query.iter() {
-            if let Some(id) = *showed_id {
-                if interaction != &Interaction::Hovered
-                    && entity == id{
-                    *showed_id = None;
-                    if let Ok((mut visibility, _,_,_)) = query.get_single_mut(){
-                        *visibility = Visibility::Hidden;
-                    }
-                    
+    let window = windows.single();
+    let cursor_position = match window.cursor_position() {
+        Some(pos) => pos,
+        None => return, 
+    };
+
+    for (entity,trigger, interaction) in trigger_query.iter() {
+        if let Some(id) = *showed_id {
+            if interaction != &Interaction::Hovered
+                && entity == id{
+                *showed_id = None;
+                if let Ok((mut visibility, _,_,_)) = query.get_single_mut(){
+                    *visibility = Visibility::Hidden;
                 }
+                
             }
-            if interaction == &Interaction::Hovered {
-                *showed_id = Some(entity);
-                if let Ok((mut visibility, mut text,mut node,size)) = query.get_single_mut()
-                {
-                    *visibility = Visibility::Visible;
-                    text.0 = trigger.content.clone();
-                    if windows.single().size().y < cursor_position.y + size.size().y {
-                        node.top = Val::Px(cursor_position.y - size.size().y );
-                    }
-                    else {
-                    
-                        node.top = Val::Px(cursor_position.y + 20.);
-                    }
-                    let pos = cursor_position.x - size.size().x / 2.;
-                    if windows.single().size().x < pos + size.size().x {
-                        node.left = Val::Px(windows.single().size().x - size.size().x);
-                    }
-                    else if pos < 0. {
-                        node.left = Val::Px(0.);
-                    }
-                    else {
-                        node.left = Val::Px(pos);
-                    }
-                }
-            }
-            
-    
         }
+
+        if interaction == &Interaction::Hovered {
+            *showed_id = Some(entity);
+            if let Ok((mut visibility, mut text,mut node,size)) = query.get_single_mut()
+            {
+                *visibility = Visibility::Visible;
+                text.0 = trigger.content.clone();
+                let pos = cursor_position.x - size.size().x / 2.;
+
+                if windows.single().size().y < cursor_position.y + size.size().y {
+                    node.top = Val::Px(cursor_position.y - size.size().y );
+                }
+                else {
+                
+                    node.top = Val::Px(cursor_position.y + 20.);
+                }
+
+                if windows.single().size().x < pos + size.size().x {
+                    node.left = Val::Px(windows.single().size().x - size.size().x);
+                }
+                else if pos < 0. {
+                    node.left = Val::Px(0.);
+                }
+                else {
+                    node.left = Val::Px(pos);
+                }
+            }
+        }
+        
+
     }
 }

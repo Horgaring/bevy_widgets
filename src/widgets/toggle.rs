@@ -1,21 +1,26 @@
-use std::process::Command;
-
-use bevy::{color::Color, ecs::{component::Component, query::{Changed, Or}, system::{Commands, Query}}, hierarchy::{BuildChildren, ChildBuild}, text::{JustifyText, Text2d, TextColor, TextLayout}, ui::{widget::{Button, Text}, Interaction, Node}};
+use bevy::{
+    app::{ App, Plugin, Update },
+    ecs::{ component::Component, query::{ Changed, Or }, system::Query },
+    ui::{ widget::{ Button, Text }, Interaction },
+};
 
 #[derive(Debug, Clone, Component)]
-#[require(
-    Button,
-)]
+#[require(Button)]
 pub struct Toggle {
     pub state: ToggleState,
 }
 
+pub struct ToggleWidgetPlugin;
+
+impl Plugin for ToggleWidgetPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Update, (toggle_system, toggle_text));
+    }
+}
+
 #[derive(Component)]
-#[require(
-    Text,
-)]
-pub struct ToggleText
-{
+#[require(Text)]
+pub struct ToggleText {
     pub on_text: String,
     pub off_text: String,
 }
@@ -26,7 +31,6 @@ impl Default for ToggleText {
             off_text: "Off".to_string(),
         }
     }
-    
 }
 
 #[derive(Debug, Clone)]
@@ -36,12 +40,9 @@ pub enum ToggleState {
 }
 
 pub fn toggle_system(
-    mut query: Query<
-        (&mut Toggle, &Interaction),
-        Or<(Changed<Toggle>, Changed<Interaction>)>,
-    >,
+    mut query: Query<(&mut Toggle, &Interaction), Or<(Changed<Toggle>, Changed<Interaction>)>>
 ) {
-    for (mut toggle,  interaction) in query.iter_mut() {
+    for (mut toggle, interaction) in query.iter_mut() {
         if interaction == &Interaction::Pressed {
             toggle.state = match toggle.state {
                 ToggleState::On => ToggleState::Off,
@@ -50,10 +51,8 @@ pub fn toggle_system(
         }
     }
 }
-pub fn toggle_text(
-    mut toggle_query: Query<(&mut Toggle,&mut Text,&mut ToggleText)>,
-) {
-    for (mut toggle,mut text,mut toggle_text) in toggle_query.iter_mut() {
+pub fn toggle_text(mut toggle_query: Query<(&mut Toggle, &mut Text, &mut ToggleText)>) {
+    for (mut toggle, mut text, mut toggle_text) in toggle_query.iter_mut() {
         match toggle.state {
             ToggleState::On => {
                 text.0 = toggle_text.on_text.clone();
@@ -64,5 +63,3 @@ pub fn toggle_text(
         }
     }
 }
-
-
