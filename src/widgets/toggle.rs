@@ -1,7 +1,5 @@
 use bevy::{
-    app::{ App, Plugin, Update },
-    ecs::{ component::Component, query::{ Changed, Or }, system::Query },
-    ui::{ widget::{ Button, Text }, Interaction },
+    app::{ App, Plugin, Update }, ecs::{ component::Component, query::{ Changed, Or }, system::Query }, hierarchy::Children, ui::{ widget::{ Button, Text }, Interaction }
 };
 
 #[derive(Debug, Clone, Component)]
@@ -51,14 +49,19 @@ pub fn toggle_system(
         }
     }
 }
-pub fn toggle_text(mut toggle_query: Query<(&mut Toggle, &mut Text, &mut ToggleText)>) {
-    for (mut toggle, mut text, mut toggle_text) in toggle_query.iter_mut() {
-        match toggle.state {
-            ToggleState::On => {
-                text.0 = toggle_text.on_text.clone();
-            }
-            ToggleState::Off => {
-                text.0 = toggle_text.off_text.clone();
+pub fn toggle_text(
+    mut toggle_query: Query<(&mut Toggle, &Children)>,
+    mut toogle_text_query: Query<(&mut ToggleText, &mut Text)>
+) {
+    for (mut toggle, mut child) in toggle_query.iter_mut() {
+        for (mut toggle_text, mut text) in toogle_text_query.get_mut(child[0]) {
+            match toggle.state {
+                ToggleState::On => {
+                    text.0 = toggle_text.on_text.clone();
+                }
+                ToggleState::Off => {
+                    text.0 = toggle_text.off_text.clone();
+                }
             }
         }
     }
