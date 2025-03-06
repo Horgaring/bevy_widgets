@@ -2,8 +2,8 @@
 
 use std::thread::spawn;
 
-use bevy::{app::{App, Startup, Update}, color::Color, core_pipeline::core_2d::{Camera2d, Camera2dBundle}, ecs::system::{Commands, Query}, math::Vec2, sprite::{Sprite, SpriteBundle}, text::{self, Text2d, TextColor, TextFont}, transform::components::Transform, ui::{node_bundles::ButtonBundle, widget::{Button, Text}, BackgroundColor, Interaction, Node, UiRect, Val}, utils::default, DefaultPlugins};
-use bevy_widgets::{widgets::{toggle::{Toggle, ToggleState, ToggleText}, tooltip::{TooltipBuilder, TooltipTrigger}}, UiWidgetPlugin};
+use bevy::{app::{App, Startup}, color::Color, core_pipeline::core_2d::Camera2d, ecs::system::Commands, text::{TextColor, TextFont}, ui::{widget::Text, BackgroundColor, Node, UiRect, Val}, utils::default, DefaultPlugins};
+use bevy_widgets::{widgets::tooltip::{TooltipBuilder, TooltipTrigger}, UiWidgetPlugin};
 
 
 
