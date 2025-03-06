@@ -1,20 +1,22 @@
 use bevy::prelude::*;
-use bevy_widgets::{widgets::progressbar::horizontal_bar::{ProgressBar, ProgressBarFill, ProgressSpeed}, UiWidgetPlugin};
+use bevy_widgets::{widgets::progressbar::{self, horizontal_bar::{ProgressBar, ProgressBarFill, ProgressBarWidgetPlugin, ProgressSpeed}}, UiWidgetPlugin};
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_plugins(UiWidgetPlugin)
+        .add_plugins(ProgressBarWidgetPlugin)
         .insert_resource(ClearColor(Color::rgb(0.1, 0.1, 0.1))) // темный фон
         .insert_resource(ProgressSpeed(20.0)) // начальная скорость заполнения
         .add_systems(Startup, setup)
+        .add_systems(Update, update_progress)
         .run();
 }
 
 fn setup(mut commands: Commands) {
     // Камера для UI
     commands.spawn(Camera2d);
-
+    let mut progressbar = ProgressBar::new(100.);
+    progressbar.step = 10.;
     // Контейнер прогресс-бара (фон)
     commands
         .spawn((Node {
@@ -24,10 +26,10 @@ fn setup(mut commands: Commands) {
             position_type: PositionType::Absolute,
             top: Val::Px(100.0),
             left: Val::Px(100.0),
-            border: UiRect::all(Val::Px(2.0)),
+            border: UiRect::all(Val::Px(1.0)),
             ..default()
             },
-            BackgroundColor(Color::linear_rgb(0., 0., 1.))
+            BorderColor(Color::WHITE)
         ))
         .with_children(|parent| {
             // Заполняемая часть прогресс-бара
@@ -37,16 +39,30 @@ fn setup(mut commands: Commands) {
                     height: Val::Percent(100.0),
                     ..default()
                 },
-                BackgroundColor(Color::rgb(0.3, 0.7, 0.3)),
+                BackgroundColor(Color::Srgba(Srgba::hex("#838383").unwrap())),
                 ProgressBarFill,
+                progressbar
             ));
         });
+}
+fn update_progress(
+    time: Res<Time>,
+    keys: Res<ButtonInput<KeyCode>>,
+    mut q: Query<&mut ProgressBar>,
+    mut active: Local<bool>
+){
+    if keys.pressed(KeyCode::KeyA)
+    && !(*active) {
+        *active = true;
+    }
+    if *active {
+        if let mut progress = q.get_single_mut().unwrap(){
+            progress.current += progress.step * time.delta_secs();
+            if progress.current >= progress.get_max(){
+                *active = false;
+                progress.current = 0.;
+            }
+        }
+    }
 
-    
-
-    // Компонент для хранения данных о прогрессе
-    commands.spawn(ProgressBar {
-        current: 0.0,
-        max: 100.0,
-    });
 }

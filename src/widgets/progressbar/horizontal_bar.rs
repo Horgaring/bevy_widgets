@@ -11,7 +11,25 @@ impl Plugin for ProgressBarWidgetPlugin {
 #[derive(Component)]
 pub struct ProgressBar {
     pub current: f32, 
-    pub max: f32, 
+    max: f32, 
+    pub step: f32
+}
+impl ProgressBar{
+    pub fn new(max: f32) -> Self{
+        Self{
+            current: 0.,
+            max,
+            step: 1.
+        }
+    }
+    pub fn get_max(&self) -> f32{
+        self.max
+    }
+}
+impl Default for ProgressBar{
+    fn default() -> Self {
+        Self::new(100.)
+    }
 }
 #[derive(Component)]
 pub struct ProgressBarFill;
