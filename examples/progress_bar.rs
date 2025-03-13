@@ -35,6 +35,7 @@ fn setup(mut commands: Commands) {
                 ..default()
             },
             BorderColor(Color::WHITE),
+            progressbar,
         ))
         .with_children(|parent| {
             // Заполняемая часть прогресс-бара
@@ -46,7 +47,6 @@ fn setup(mut commands: Commands) {
                 },
                 BackgroundColor(Color::Srgba(Srgba::hex("#838383").unwrap())),
                 ProgressBarFill,
-                progressbar,
             ));
         });
 }
@@ -61,12 +61,12 @@ fn update_progress(
         *active = true;
     }
     if *active {
-        if let mut progress = q.get_single_mut().unwrap() {
-            progress.current += progress.step * time.delta_secs();
-            if progress.current >= progress.get_max() {
-                *active = false;
-                progress.current = 0.0;
-            }
+        let mut progress = q.get_single_mut().unwrap();
+        progress.current += progress.step * time.delta_secs();
+        if progress.current >= progress.get_max() {
+            *active = false;
+            progress.current = 0.0;
         }
+        
     }
 }

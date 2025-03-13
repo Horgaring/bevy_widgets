@@ -33,7 +33,7 @@ pub fn setup(mut commands: Commands) {
                 align_items: AlignItems::Center,
                 ..default()
             },
-            BackgroundColor(Color::rgb(1.0, 0.0, 0.0)),
+            BackgroundColor(Color::linear_rgb(1.0, 0.0, 0.0)),
         ))
         .with_children(|parent| {
             parent.spawn((

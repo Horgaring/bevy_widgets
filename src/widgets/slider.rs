@@ -7,16 +7,7 @@ use bevy::{
         system::{ Commands, Query },
     },
     hierarchy::{ BuildChildren, ChildBuild, Children },
-    ui::{
-        widget::Button,
-        BorderRadius,
-        Interaction,
-        Node,
-        PositionType,
-        RelativeCursorPosition,
-        UiRect,
-        Val,
-    },
+    ui::{widget::Button, *},
     utils::default,
 };
 
@@ -62,6 +53,17 @@ impl SliderBuilder {
             }),
         }
     }
+
+    pub fn with_dot(&mut self, dot: Node) -> &mut Self {
+        self.dot = Some(dot);
+        self
+    }
+
+    pub fn with_line(&mut self, line: Node) -> &mut Self {
+        self.line = Some(line);
+        self
+    }
+
     pub fn spawn(&mut self, commands: &mut Commands) -> SliderEntities {
         let line_id = commands
             .spawn((

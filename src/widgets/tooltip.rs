@@ -39,7 +39,7 @@ impl<'a> TooltipBuilder<'a> {
         self
     }
     pub fn spawn(&mut self, commands: &mut Commands) -> Entity  {
-        let mut entcom = commands
+        let entcom = commands
             .spawn((
                 Tooltip, 
                 Visibility::Hidden, 
@@ -57,7 +57,7 @@ impl<'a> TooltipBuilder<'a> {
     }
 }
 
-impl<'a> Default for TooltipBuilder<'a> {
+impl Default for TooltipBuilder<'_> {
     fn default() -> Self {
         Self::new()
     }
@@ -100,7 +100,7 @@ pub fn show_tooltip(
                 }
                 else {
                 
-                    node.top = Val::Px(cursor_position.y + 20.);
+                    node.top = Val::Px(cursor_position.y + size.size().y);
                 }
 
                 if windows.single().size().x < pos + size.size().x {
@@ -112,6 +112,7 @@ pub fn show_tooltip(
                 else {
                     node.left = Val::Px(pos);
                 }
+                
             }
         }
         

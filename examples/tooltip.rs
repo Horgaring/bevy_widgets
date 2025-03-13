@@ -1,7 +1,3 @@
-//! Illustrates bloom post-processing in 2d.
-
-use std::thread::spawn;
-
 use bevy::{app::{App, Startup}, color::Color, core_pipeline::core_2d::Camera2d, ecs::system::Commands, text::{TextColor, TextFont}, ui::{widget::Text, BackgroundColor, Node, UiRect, Val}, utils::default, DefaultPlugins};
 use bevy_widgets::{widgets::tooltip::{TooltipBuilder, TooltipTrigger}, UiWidgetPlugin};
 
@@ -14,7 +10,7 @@ fn main() {
         .add_systems(Startup, setup)
         .run();
 }
-pub fn setup<'w, 's>(mut commands: Commands<'w, 's>) {
+pub fn setup(mut commands: Commands) {
     
     commands.spawn(Camera2d);
     commands.spawn((
@@ -65,7 +61,6 @@ pub fn setup<'w, 's>(mut commands: Commands<'w, 's>) {
     ));
     TooltipBuilder::new()
     .with_content(Node{
-        margin: UiRect::all(Val::Px(10.)),
         ..default()
     })
     .run_commands(|mut commands|{
@@ -74,7 +69,7 @@ pub fn setup<'w, 's>(mut commands: Commands<'w, 's>) {
             ..Default::default()
         });
         commands.insert(TextColor(Color::linear_rgb(0.0, 0.0, 0.0)));
-        commands.insert(BackgroundColor(Color::rgb(1.0, 0.0, 0.0)));
+        commands.insert(BackgroundColor(Color::linear_rgb(1.0, 0.0, 0.0)));
         commands
     })
     .spawn(&mut commands);

@@ -38,11 +38,11 @@ pub struct ProgressBarFill;
 pub struct ProgressSpeed(pub f32);
 
 pub fn update_progress_bar(
-    progress_query: Query<&ProgressBar>,
+    mut progress_query: Query<(&ProgressBar,&Children)>,
     mut fill_query: Query<&mut Node, With<ProgressBarFill>>
 ) {
-    if let Ok(progress) = progress_query.get_single() {
-        if let Ok(mut node) = fill_query.get_single_mut() {
+    for (progress,child) in progress_query.iter_mut() {
+        if let Ok(mut node) = fill_query.get_mut(*child.first().unwrap()) {
             let fill_percent = (progress.current / progress.max) * 100.0;
             node.width = Val::Percent(fill_percent);
         }
